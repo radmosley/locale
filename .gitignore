@@ -1,2 +1,8 @@
 /data
+/data_postgres
+/data-msyql
+/scratch
 .env
+/locale-drupal
+/nginx
+# /locale-django

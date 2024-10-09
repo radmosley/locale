@@ -1,19 +1,28 @@
-FROM node:13.12.0-alpine
+FROM node:18-alpine
 
-# set working directory
+# Create the work directory
+RUN mkdir -p /app
+
+# Change ownership of the work directory
+RUN chown -R node:node /app
+
+# Set the working directory to /app
 WORKDIR /app
 
-# add `/app/node_modules/.bin` to $PATH
-ENV PATH /app/node_modules/.bin:$PATH
+# Switch to the node user
+USER node
 
-# install app dependencies
-COPY package.json ./
-COPY package-lock.json ./
-RUN npm install --silent
-RUN npm install react-scripts@3.4.1 -g --silent
+# Copy package.json and yarn.lock first to take advantage of Docker caching
+COPY --chown=node:node ./package.json ./
 
-# add app
-COPY . ./
+# Install dependencies
+RUN npm install
+
+# Copy the rest of the application code
+COPY --chown=node:node . .
+
+# Expose port 3000 for the React app
+EXPOSE 3000
 
 # start app
 CMD ["npm", "start"]

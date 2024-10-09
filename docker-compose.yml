@@ -1,46 +1,29 @@
 version: '3.8'
 
 services:
-  drupal:
-    build:
-      context: ./locale-drupal
-      dockerfile: Dockerfile
-    ports:
-      - 8080:80
+  # Backend: Django REST Framework
+  backend:
+    build: ./locale-django
+    container_name: drf_backend
+    command: >
+      sh -c "./wait-for-it.sh db:${DATABASE_PORT} -- 
+             python manage.py makemigrations &&
+             python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
     volumes:
-      - ./locale-drupal/web/modules:/var/www/html/modules
-      - ./locale-drupal/web/profiles:/var/www/html/profiles
-      - ./locale-drupal/web/themes:/var/www/html/themes
-      - ./locale-drupal/web/sites:/var/www/html/sites
-    restart: always
-    environment:
-      - DATABASE_HOST=${DATABASE_HOST}
-      - DATABASE_PORT=${DATABASE_PORT}
-      - DATABASE_NAME=${DATABASE_NAME}
-      - DATABASE_USER=${DATABASE_USER}
-      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
-
-  db:
-    image: mariadb:latest
-    restart: always
-    environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
-      - MYSQL_USER=${MYSQL_USER}
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-    volumes:
-      - ./data:/var/lib/mysql
-
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    restart: always
+      - ./locale-django:/app
     ports:
-      - 8081:80
+      - "8000:8000"
+    depends_on:
+      - db
     environment:
-      - PMA_HOST=${PMA_HOST}
-      - PMA_USER=${PMA_USER}
-      - PMA_PASSWORD=${PMA_PASSWORD}
+      - POSTGRES_NAME=${DATABASE_NAME}
+      - POSTGRES_USER=${DATABASE_USER}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+    env_file:
+      - ./locale-django/.env
 
+  # # Frontend: React
   react:
     container_name: react
     build:
@@ -51,3 +34,18 @@ services:
       - '/app/node_modules'
     ports:
       - 3001:3000
+
+  # Database: PostgreSQL
+  db:
+    image: postgres:13
+    container_name: postgres_db
+    environment:
+      POSTGRES_DB: ${DATABASE_HOST}
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      DB_PORT: ${DATABASE_PORT}
+    volumes:
+      - ./data_postgres:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

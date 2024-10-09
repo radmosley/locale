@@ -1,21 +1,25 @@
 import './styling/App.css';
 import NavBar from './components/navbar/NavBar';
-import CategoryHome from './components/category/categoryHome';
-import ItemList from './layout/listviews/ItemList';
-import ProductPage from './layout/profiles/ProductPage'
-import {Products} from './test_data/products.js'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Login from './components/forms/Login';
+import Registration from './components/forms/Register';
+import UserCart from './components/profiles/UserCart';
 import FeaturedHome from './components/featured/featuredHome';
+import CategoryHome from './components/category/categoryHome'
 
 function App() {
   return (
     <div className="App">
-      <NavBar></NavBar>
-      <CategoryHome></CategoryHome>
-      <div className="container">
-      {/* <ItemList data={Products}></ItemList> */}
-      {/* <ProductPage></ProductPage> */}
-      {/* <FeaturedHome></FeaturedHome> */}
-      </div>
+      <Router>
+        <NavBar />
+          <CategoryHome />
+            <Routes>
+              <Route path="/" element={<FeaturedHome />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Registration />} />
+              <Route path="/cart" element={<UserCart />} />
+            </Routes>
+      </Router>
     </div>
   );
 }
