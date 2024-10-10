@@ -36,3 +36,14 @@ class User(AbstractBaseUser, PermissionsMixin):
     @property
     def is_staff(self):
         return self.is_admin
+
+class StoreFront(models.Model):
+    store_name = models.CharField(max_length=255)
+    store_phone_number = models.CharField(max_length=20)
+    store_physical_location = models.TextField()
+    store_mailing_location = models.TextField()
+    store_billing_address = models.TextField()
+    store_email = models.EmailField()
+
+    def __str__(self):
+        return self
