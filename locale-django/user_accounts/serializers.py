@@ -1,7 +1,8 @@
 from rest_framework import serializers
-from .models import User
+from .models import User, StoreFront
 from django.contrib.auth import authenticate
 
+#User Accounts
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -32,3 +33,9 @@ class LoginSerializer(serializers.Serializer):
         if user and user.is_active:
             return user
         raise serializers.ValidationError("invalid login credentials")
+
+#Store Fronts
+class StoreFrontSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StoreFront
+        fields = '__all__'
